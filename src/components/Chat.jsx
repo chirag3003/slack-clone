@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components';
 import IconButton from '@material-ui/core/IconButton';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
@@ -7,9 +7,17 @@ import SpeedIcon from '@material-ui/icons/Speed';
 import EmojiEmotionsOutlinedIcon from '@material-ui/icons/EmojiEmotionsOutlined';
 import AttachFileOutlinedIcon from '@material-ui/icons/AttachFileOutlined';
 import messageData from "./data/message.js";
-
+import MoreVertIcon from '@material-ui/icons/MoreVert';
+import VideocamIcon from '@material-ui/icons/Videocam';
+import CallIcon from '@material-ui/icons/Call';
+import GifIcon from '@material-ui/icons/Gif';
 
 function Chat({darkTheme}) {
+
+    const [input,changeInput] = useState('');
+    const [inputButtons,setInputButtons] = useState(false);
+
+
     return (
         <Container darkTheme={darkTheme}>
             <Header darkTheme={darkTheme}>
@@ -30,7 +38,7 @@ function Chat({darkTheme}) {
                 {
                     messageData.map((message,i) => {
                         return(
-                            <Message>
+                            <Message darkTheme={darkTheme}>
                                 <MessageAvatar>
                                     <img src={message.avatar} />
                                 </MessageAvatar>
@@ -50,14 +58,39 @@ function Chat({darkTheme}) {
                         <SpeedIcon />
                         
                     </IconButton>
-                    <input type="text"/>
+                    <input 
+                        type="text"
+                        value={input}
+                        onChange={evt => {changeInput(evt.target.value)}}
+                    />
                     <IconButton>
                         <EmojiEmotionsOutlinedIcon />
                     </IconButton>
+                    
+                    <IconButton onClick={() =>{setInputButtons(!inputButtons)}}>
+                        <MoreVertIcon />
+                    </IconButton>
+                    <button 
+                        type='submit'
+                        style={{display:'none'}} 
+                    ></button>
+                </InputContainer>
+                <InputButtons style={{display:inputButtons?'':'none',}}>
                     <IconButton>
                         <AttachFileOutlinedIcon />
                     </IconButton>
-                </InputContainer>
+                    <IconButton>
+                        <CallIcon />
+                    </IconButton>
+                    <IconButton>
+                        <VideocamIcon />
+                    </IconButton>
+                    <IconButton>
+                        <GifIcon />
+                    </IconButton>
+                    
+
+                </InputButtons>
             </ChatFooter>
 
         </Container>
@@ -103,11 +136,14 @@ const ChatBody = styled.div`
     display:flex;
     flex-direction:column;
     overflow-y:auto;
-    padding: 30px;
+    padding: 30px 0;
 `
 const Message = styled.div`
     display:flex;
-    margin-bottom:20px;
+    padding:10px 30px;
+    :hover{
+        background:${props => props.darkTheme?"#1f4068":"#e8e8e8"};
+    }
 `
 const MessageAvatar = styled.div`
     height:40px;
@@ -121,28 +157,43 @@ const MessageAvatar = styled.div`
 const MessageText = styled.div`
     margin-left:20px;
     .name{
-        font-weight:600;
+        font-weight:700;
+        margin-bottom:3px;
     }
 `
 const ChatFooter = styled.div`
-    height:70px;
+    
     display:flex;
     justify-content:center;
+    flex-direction:column;
     align-items: center;
-    padding:0 20px;
+    padding:15px 20px;
 
 `
-const InputContainer = styled.div`
+const InputContainer = styled.form`
     width:100%;
     display:flex;
     border-radius:25px;
     box-shadow: -1px 4px 20px -6px rgba(0, 0, 0, 0.75);
+    transition:1s ease;
     input{
         background:${props => props.darkTheme?"#1f4068":null};
         padding:0px 10px;
         flex:1;
         border:none;
         outline:none;
+        margin:0 5px;
+    }
+
+`
+const InputButtons = styled.div`
+    width:100%;
+    display:flex;
+    padding-top:5px;
+    margin-top:-5px;
+    box-shadow: -1px 4px 20px -6px rgba(0, 0, 0, 0.75);
+    border-radius:50px;
+    button{
         margin:0 5px;
     }
 `

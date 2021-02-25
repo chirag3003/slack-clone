@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState,useEffect } from "react"
 import {BrowserRouter as Router,Route,Switch} from "react-router-dom";
 import './App.css';
 import Chat from "./components/Chat";
@@ -6,7 +6,7 @@ import Login from "./components/Login";
 import styled from "styled-components"
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
-
+import db from "./components/data/firebase";
 
 function App() {
 
@@ -14,6 +14,27 @@ function App() {
   function changeTheme(){
     changeDarkTheme(!darkTheme)
   }
+
+  const [rooms,setRooms] = useState([]);
+  console.log(rooms);
+  const getChannels = () => {
+    console.log("this is running")
+    db.collection('rooms').onSnapshot((snapshot) => {
+      setRooms(snapshot.docs.map(doc => {
+        return {
+          id:doc.id,
+          name:doc.data().name
+        }
+      }))
+    })
+  }
+  
+  
+  useEffect(() => {
+    console.log("use runs")
+    
+    getChannels();
+  },[])
 
 
   return (
@@ -24,7 +45,7 @@ function App() {
           <Header darkTheme={darkTheme} changeTheme={changeTheme} />
 
           <Main >
-            <Sidebar darkTheme={darkTheme} />
+            <Sidebar channels={rooms} darkTheme={darkTheme} />
               
               
               <Switch>
