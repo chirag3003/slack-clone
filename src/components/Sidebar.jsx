@@ -7,6 +7,7 @@ import { IconButton } from '@material-ui/core';
 import db from "./data/firebase";
 import {useHistory} from "react-router-dom";
 
+
 function Sidebar({channels,darkTheme}) {
 
     const history = useHistory();
@@ -81,7 +82,10 @@ function Sidebar({channels,darkTheme}) {
                         return (
                             <Channel darkTheme={darkTheme} key={i} onClick={() =>{goToChannel(channel.id)}} >
                                 # {channel.name}
+                                
+
                             </Channel>
+                            
                         )
                     })}
                     
@@ -197,8 +201,10 @@ const Channel = styled.div`
     align-items:center;
     padding:4px 20px;
     cursor: pointer;
+    
     :hover{
         background:${props => props.darkTheme?"#1a1a2e":"#350d36"};
+       
     }
 `
 

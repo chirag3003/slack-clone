@@ -81,7 +81,7 @@ function App() {
             <Route path="/room">
             <Header signOut={signOut} darkTheme={darkTheme} changeTheme={changeTheme} user={user}/>
               <Main >
-                <Sidebar channels={rooms} darkTheme={darkTheme} />
+                <Sidebar channels={rooms} darkTheme={darkTheme} user={user}  />
                 <NoChat darkTheme={darkTheme} />
               </Main>
             </Route>

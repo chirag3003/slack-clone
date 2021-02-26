@@ -6,7 +6,6 @@ import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import SpeedIcon from '@material-ui/icons/Speed';
 import EmojiEmotionsOutlinedIcon from '@material-ui/icons/EmojiEmotionsOutlined';
 import AttachFileOutlinedIcon from '@material-ui/icons/AttachFileOutlined';
-import messageData from "./data/message.js";
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import VideocamIcon from '@material-ui/icons/Videocam';
 import CallIcon from '@material-ui/icons/Call';
@@ -14,6 +13,7 @@ import GifIcon from '@material-ui/icons/Gif';
 import db from "./data/firebase"
 import {BrowserRouter as Router,Route,Switch,useParams} from "react-router-dom";
 import firebase from 'firebase';
+import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 
 function Chat({darkTheme,user}) {
 
@@ -30,7 +30,13 @@ function Chat({darkTheme,user}) {
         .collection('messages')
         .orderBy('timestamp','asc')
         .onSnapshot((snapshot) => {
-            let messages = snapshot.docs.map((doc) => doc.data());
+            let messages = snapshot.docs.map((message) => {
+                return{
+                    id:message.id,
+                    ...message.data()
+                }
+            });
+            console.log(messages)
             changeMessages(messages)
         })
     }
@@ -47,6 +53,9 @@ function Chat({darkTheme,user}) {
         }
         db.collection('rooms').doc(channelId).collection('messages').add(message);
         changeInput('')
+    }
+    const deleteMessage = (id) => {
+        db.collection('rooms').doc(channelId).collection('messages').doc(id).delete();
     }
     const getChannel = () => {
         db.collection('rooms').doc(channelId).onSnapshot((snapshot) => {
@@ -91,7 +100,9 @@ function Chat({darkTheme,user}) {
                                                     <span>{new Date(message.timestamp.toDate()).toUTCString}</span>
                                                 </p>
                                                 <p className="message">{message.text}</p>
+                                                
                                             </MessageText>
+                                            {(user.name === message.name)?<DeleteForeverIcon onClick={evt => {deleteMessage(message.id)}}/>:null}
                                         </Message>
                                     )
                                 })
@@ -193,9 +204,20 @@ const ChatBody = styled.div`
 `
 const Message = styled.div`
     display:flex;
+    position:relative;
     padding:10px 30px;
+    .MuiSvgIcon-root{
+        display:none;
+        color:red;
+        position:absolute;
+        right:30px;
+        top:-8px;
+    }
     :hover{
         background:${props => props.darkTheme?"#1f4068":"#e8e8e8"};
+        .MuiSvgIcon-root{
+            display:inline
+        }
     }
 `
 const MessageAvatar = styled.div`
@@ -232,6 +254,7 @@ const InputContainer = styled.form`
     transition:1s ease;
     input{
         background:${props => props.darkTheme?"#1f4068":null};
+        color:${props => props.darkTheme?'rgb(188,171,188)':null};
         padding:0px 10px;
         flex:1;
         border:none;

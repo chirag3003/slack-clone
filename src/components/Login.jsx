@@ -2,7 +2,7 @@ import { Button } from '@material-ui/core';
 import React from 'react'
 import styled from "styled-components"
 import {auth,provider} from "./data/firebase.js";
-
+import {GoogleLoginButton} from "react-social-login-buttons"
 
 function Login({changeUser}) {
 
@@ -27,9 +27,16 @@ function Login({changeUser}) {
                 <h1>Sign In Slack</h1>
 
                 <SignInButtons>
-                    <Button onClick={signIn}>
-                        Sign in With Google
+
+                    <Button variant='contained' onClick={signIn}>
+                        <SigninImg>
+                            <img 
+                            src="https://www.freepnglogos.com/uploads/google-logo-png/google-logo-png-suite-everything-you-need-know-about-google-newest-0.png" 
+                            />
+                        </SigninImg>
+                         Sign in With Google
                     </Button>
+
                 </SignInButtons>
             </Content>
         </Container>
@@ -62,4 +69,18 @@ const SlackImg = styled.img`
 `
 const SignInButtons = styled.div`
     display:flex;
+    flex-direction:column;
+    padding:20px;
+    box-shadow: rgba(0, 0, 0, 0.08) 0px 21px 36px;
+    align-items:center;
+    justify-content:center;
+    margin-top:40px;
+`
+const SigninImg = styled.div`
+    height:30px;
+    width:30px;
+    img{
+        width:100%;
+        height:100%;
+    }
 `
