@@ -2,7 +2,6 @@ import { Button } from '@material-ui/core';
 import React from 'react'
 import styled from "styled-components"
 import {auth,provider} from "./data/firebase.js";
-import {GoogleLoginButton} from "react-social-login-buttons"
 
 function Login({changeUser}) {
 

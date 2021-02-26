@@ -10,7 +10,6 @@ import Sidebar from "./components/Sidebar";
 import db from "./components/data/firebase";
 import {auth,provider} from "./components/data/firebase"
 
-
 function App() {
 
   let theme=true;
