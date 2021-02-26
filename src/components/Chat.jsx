@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components';
 import IconButton from '@material-ui/core/IconButton';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
@@ -11,89 +11,138 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 import VideocamIcon from '@material-ui/icons/Videocam';
 import CallIcon from '@material-ui/icons/Call';
 import GifIcon from '@material-ui/icons/Gif';
+import db from "./data/firebase"
+import {BrowserRouter as Router,Route,Switch,useParams} from "react-router-dom";
+import firebase from 'firebase';
 
-function Chat({darkTheme}) {
+function Chat({darkTheme,user}) {
 
     const [input,changeInput] = useState('');
     const [inputButtons,setInputButtons] = useState(false);
+    const [channel,changeChannel] = useState({})
+    const {channelId} = useParams();
+    const [messages,changeMessages] = useState([]);
+
+
+    const getMessages = () => {
+        db.collection('rooms')
+        .doc(channelId)
+        .collection('messages')
+        .orderBy('timestamp','asc')
+        .onSnapshot((snapshot) => {
+            let messages = snapshot.docs.map((doc) => doc.data());
+            changeMessages(messages)
+        })
+    }
+    const sendMessage = () => {
+        // console.log(user.name,user.photo,input,firebase.firestore.Timestamp.now())
+        if(input === ''){
+            return ;
+        }
+        let message = {
+            name: user.name,
+            photo:user.photo,
+            text:input,
+            timestamp:firebase.firestore.Timestamp.now()
+        }
+        db.collection('rooms').doc(channelId).collection('messages').add(message);
+        changeInput('')
+    }
+    const getChannel = () => {
+        db.collection('rooms').doc(channelId).onSnapshot((snapshot) => {
+            changeChannel(snapshot.data());
+            
+        })
+    }
+
+    useEffect(() => {
+        getChannel();
+        getMessages();
+    },[channelId])
 
 
     return (
         <Container darkTheme={darkTheme}>
-            <Header darkTheme={darkTheme}>
-                <NameDes darkTheme={darkTheme}>
-                    # Channel Name
-                    <p>Share ur thoughts here</p>
-                </NameDes>
-                <HeaderRight>
-                    <IconButton aria-label="add person" >
-                        <PersonAddIcon />
-                    </IconButton>
-                    <IconButton aria-label="channel info">
-                        <InfoOutlinedIcon />
-                    </IconButton>
-                </HeaderRight>
-            </Header>
-            <ChatBody>
-                {
-                    messageData.map((message,i) => {
-                        return(
-                            <Message darkTheme={darkTheme}>
-                                <MessageAvatar>
-                                    <img src={message.avatar} />
-                                </MessageAvatar>
-                                <MessageText>
-                                    <p className="name">{message.name}</p>
-                                    <p className="message">{message.message}</p>
-                                </MessageText>
-                            </Message>
-                        )
-                    })
-                }
-                
-            </ChatBody>
-            <ChatFooter>
-                <InputContainer darkTheme={darkTheme}>
-                    <IconButton>
-                        <SpeedIcon />
-                        
-                    </IconButton>
-                    <input 
-                        type="text"
-                        value={input}
-                        onChange={evt => {changeInput(evt.target.value)}}
-                    />
-                    <IconButton>
-                        <EmojiEmotionsOutlinedIcon />
-                    </IconButton>
-                    
-                    <IconButton onClick={() =>{setInputButtons(!inputButtons)}}>
-                        <MoreVertIcon />
-                    </IconButton>
-                    <button 
-                        type='submit'
-                        style={{display:'none'}} 
-                    ></button>
-                </InputContainer>
-                <InputButtons style={{display:inputButtons?'':'none',}}>
-                    <IconButton>
-                        <AttachFileOutlinedIcon />
-                    </IconButton>
-                    <IconButton>
-                        <CallIcon />
-                    </IconButton>
-                    <IconButton>
-                        <VideocamIcon />
-                    </IconButton>
-                    <IconButton>
-                        <GifIcon />
-                    </IconButton>
-                    
+            
+                        <Header darkTheme={darkTheme}>
+                            <NameDes darkTheme={darkTheme}>
+                                # {channel.name}
+                                <p>Share ur thoughts here</p>
+                            </NameDes>
+                            <HeaderRight>
+                                <IconButton aria-label="add person" >
+                                    <PersonAddIcon />
+                                </IconButton>
+                                <IconButton aria-label="channel info">
+                                    <InfoOutlinedIcon />
+                                </IconButton>
+                            </HeaderRight>
+                        </Header>
+                        <ChatBody>
+                            {
+                                messages.map((message,i) => {
+                                    return(
+                                        <Message darkTheme={darkTheme}>
+                                            <MessageAvatar>
+                                                <img src={message.photo} />
+                                            </MessageAvatar>
+                                            <MessageText>
+                                                <p className="name">{message.name} 
+                                                    <span>{new Date(message.timestamp.toDate()).toUTCString}</span>
+                                                </p>
+                                                <p className="message">{message.text}</p>
+                                            </MessageText>
+                                        </Message>
+                                    )
+                                })
+                            }
+                            
+                        </ChatBody>
+                        <ChatFooter>
+                            <InputContainer darkTheme={darkTheme}>
+                                <IconButton>
+                                    <SpeedIcon />
+                                    
+                                </IconButton>
+                                <input 
+                                    type="text"
+                                    value={input}
+                                    onChange={evt => {changeInput(evt.target.value)}}
+                                    
+                                />
+                                <IconButton>
+                                    <EmojiEmotionsOutlinedIcon />
+                                </IconButton>
+                                
+                                <IconButton onClick={() =>{setInputButtons(!inputButtons)}}>
+                                    <MoreVertIcon />
+                                </IconButton>
+                                <button 
+                                    type='submit'
+                                    style={{display:'none'}} 
+                                    onClick={evt => {evt.preventDefault();sendMessage()}}
+                                ></button>
+                            </InputContainer>
+                            <InputButtons style={{display:inputButtons?'':'none',}}>
+                                <IconButton>
+                                    <AttachFileOutlinedIcon />
+                                </IconButton>
+                                <IconButton>
+                                    <CallIcon />
+                                </IconButton>
+                                <IconButton>
+                                    <VideocamIcon />
+                                </IconButton>
+                                <IconButton>
+                                    <GifIcon />
+                                </IconButton>
+                                
 
-                </InputButtons>
-            </ChatFooter>
+                            </InputButtons>
+                        </ChatFooter>
 
-        </Container>
+      
+              </Container>
     )
 }
 
@@ -101,15 +150,19 @@ export default Chat
 
 
 const Container = styled.div`
-    display:flex;
+    display:grid;
+    grid-template-rows:64px minmax(0,1fr) min-content;
     flex-direction:column;
+    height:100%;
+    max-height:100%;
     background:${props => props.darkTheme?"#0f3460":"#f2f4fb"};
     color:${props => props.darkTheme?'rgb(188,171,188)':null};
+    overflow-y:auto
     
 
 `
 const Header = styled.header`
-    
+
     height:64px;
     display:flex;
     align-items:center;
@@ -156,6 +209,7 @@ const MessageAvatar = styled.div`
 `
 const MessageText = styled.div`
     margin-left:20px;
+    font-weight:400;
     .name{
         font-weight:700;
         margin-bottom:3px;

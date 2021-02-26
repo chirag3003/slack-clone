@@ -5,11 +5,21 @@ import AddIcon from "@material-ui/icons/Add";
 import sidebarItemsData from "./data/sidebarData.js";
 import { IconButton } from '@material-ui/core';
 import db from "./data/firebase";
+import {useHistory} from "react-router-dom";
 
 function Sidebar({channels,darkTheme}) {
 
+    const history = useHistory();
+
     const [channelInputState,changeChannelInputState] = useState(false);
-    const [channelInput,changeChannelInput] = useState('')
+    const [channelInput,changeChannelInput] = useState('');
+
+    const goToChannel = (id) => {
+        if(id){
+            history.push(`/room/${id}`)
+        }
+    }
+
     const addChannel = (evt) => {
         evt.preventDefault();
         if(channelInput.trim() !== ''){
@@ -69,7 +79,7 @@ function Sidebar({channels,darkTheme}) {
                 <ChannelList>
                     {channels.map((channel,i) => {
                         return (
-                            <Channel darkTheme={darkTheme} key={i}>
+                            <Channel darkTheme={darkTheme} key={i} onClick={() =>{goToChannel(channel.id)}} >
                                 # {channel.name}
                             </Channel>
                         )

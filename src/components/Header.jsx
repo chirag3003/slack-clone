@@ -4,7 +4,7 @@ import AccessTimeIcon from '@material-ui/icons/AccessTime';
 import HelpOutlineIcon from "@material-ui/icons/HelpOutline"
 import { FormControlLabel, Switch } from '@material-ui/core';
 
-function Header({darkTheme,changeTheme}) {
+function Header({darkTheme,changeTheme,user,signOut}) {
     return (
         <div>
             <Container darkTheme={darkTheme} >
@@ -37,11 +37,11 @@ function Header({darkTheme,changeTheme}) {
                 
                 <UserContainer>
                     <Name>
-                        Chirag
+                        {user.name}
                     </Name>
-                    <UserImage>
+                    <UserImage onClick={signOut} >
                         <img 
-                            src="https://www.flaticon.com/premium-icon/icons/svg/3829/3829543.svg" 
+                            src={user.photo} 
                             alt="user image"
                         />
                     </UserImage>

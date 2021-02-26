@@ -1,24 +1,46 @@
 import React, { useState,useEffect } from "react"
-import {BrowserRouter as Router,Route,Switch} from "react-router-dom";
+import {BrowserRouter as Router,Route,Switch,Redirect} from "react-router-dom";
 import './App.css';
 import Chat from "./components/Chat";
+import NoChat from "./components/NoChat";
 import Login from "./components/Login";
 import styled from "styled-components"
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import db from "./components/data/firebase";
+import {auth,provider} from "./components/data/firebase"
+
 
 function App() {
 
-  const [darkTheme,changeDarkTheme] = useState(false);
+  let theme=true;
+  if(localStorage.getItem('theme')){
+    theme = JSON.parse(localStorage.getItem('theme')).darkTheme;
+  }
+  const [darkTheme,changeDarkTheme] = useState(theme);
   function changeTheme(){
+    localStorage.setItem('theme',JSON.stringify({
+      darkTheme:!darkTheme,
+    }))
     changeDarkTheme(!darkTheme)
   }
 
+  const [user,changeUser] = useState(JSON.parse(localStorage.getItem('user')));
+  console.log(user)
+
+  const signOut = () => {
+    auth.signOut().then(() => {
+      localStorage.clear()
+      changeUser(false)
+    })
+    
+  }
+  
   const [rooms,setRooms] = useState([]);
-  console.log(rooms);
+
+
+  
   const getChannels = () => {
-    console.log("this is running")
     db.collection('rooms').onSnapshot((snapshot) => {
       setRooms(snapshot.docs.map(doc => {
         return {
@@ -30,35 +52,49 @@ function App() {
   }
   
   
+
   useEffect(() => {
-    console.log("use runs")
     
     getChannels();
   },[])
-
 
   return (
     <div className="App">
       <Router>
         <Container >
+          {!user?<Redirect to="/" />:null }
           
-          <Header darkTheme={darkTheme} changeTheme={changeTheme} />
 
-          <Main >
-            <Sidebar channels={rooms} darkTheme={darkTheme} />
+          
               
               
-              <Switch>
-                <Route path="/room">
-                  <Chat darkTheme={darkTheme}/>
-                </Route>
-                <Route path="/">
-                  <Login />
-                </Route>
-              </Switch>
+          <Switch>
+            <Route path="/room/:channelId">
+              <Header signOut={signOut} darkTheme={darkTheme} changeTheme={changeTheme} user={user}/>
+              <Main >
+                <Sidebar channels={rooms} darkTheme={darkTheme} />
+                <Chat darkTheme={darkTheme} user={user} />
+              </Main>
+            </Route>
 
 
-          </Main>
+            <Route path="/room">
+            <Header signOut={signOut} darkTheme={darkTheme} changeTheme={changeTheme} user={user}/>
+              <Main >
+                <Sidebar channels={rooms} darkTheme={darkTheme} />
+                <NoChat darkTheme={darkTheme} />
+              </Main>
+            </Route>
+
+
+            <Route path="/">
+              {user?<Redirect to="/room" />:null}
+              <Login changeUser={changeUser} />
+            </Route>
+          </Switch>
+
+
+          
           
         </Container>
       </Router>
@@ -72,11 +108,12 @@ const Container = styled.div`
   width:100vw;
   height:100vh;
   display:grid;
-  grid-template-rows:50px auto;
+  grid-template-rows:50px minmax(0,1fr);
 
 `
 
 const Main = styled.div`
   display:grid;
-  grid-template-columns:270px auto;
+  grid-template-columns:270px minmax(0,1fr);
+  heigh:100%;
 `
